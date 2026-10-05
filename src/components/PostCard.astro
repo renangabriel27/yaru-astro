@@ -1,0 +1,33 @@
+---
+// A row of the numbered list. The number comes from a CSS counter (.gh-feed)
+import { theme } from '../config';
+import { t } from '../lib/i18n';
+import { isoDate, postAuthors, postTags, readingTime, shortDate, type Post } from '../lib/posts';
+import { postUrl } from '../lib/url';
+
+interface Props {
+    post: Post;
+}
+
+const { post } = Astro.props;
+const [primaryTag] = await postTags(post);
+const authors = await postAuthors(post);
+const minutes = readingTime(post);
+const classes = ['gh-card', 'post', ...post.data.tags.map((tag) => `tag-${tag.id}`), post.data.featured && 'featured', !post.data.cover && 'no-image'];
+---
+<article class:list={classes}>
+    <a class="gh-card-link" href={postUrl(post.id)}>
+        <span class="gh-card-number" aria-hidden="true"></span>
+        <div class="gh-card-wrapper">
+            <h3 class="gh-card-title is-title">{post.data.title}</h3>
+            <footer class="gh-card-meta">
+                {primaryTag && <span class="gh-card-tag">{primaryTag.data.name}</span>}
+                {theme.showPublishDate && <time class="gh-card-date" datetime={isoDate(post.data.date)}>{shortDate(post.data.date)}</time>}
+                {theme.showReadingTime && <span class="gh-card-length">{minutes === 1 ? t('1 min read') : t('% min read', { n: minutes })}</span>}
+                {theme.showAuthor && authors.length > 0 && (
+                    <span class="gh-card-author">{t('By {authors}', { authors: authors.map((a) => a.data.name).join(', ') })}</span>
+                )}
+            </footer>
+        </div>
+    </a>
+</article>

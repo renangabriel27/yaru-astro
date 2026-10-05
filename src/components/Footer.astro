@@ -1,0 +1,43 @@
+---
+import { newsletter, site } from '../config';
+import { t } from '../lib/i18n';
+import Icon from './Icon.astro';
+import NavMenu from './NavMenu.astro';
+import Signup from './Signup.astro';
+
+interface Props {
+    /** On posts the newsletter block is already shown at the end of the article */
+    isPost?: boolean;
+}
+
+const showSignup = newsletter.action && !(Astro.props.isPost && newsletter.showOnPosts);
+const names: Record<string, string> = {
+    x: 'X', facebook: 'Facebook', linkedin: 'LinkedIn', bluesky: 'Bluesky', mastodon: 'Mastodon',
+    threads: 'Threads', instagram: 'Instagram', youtube: 'YouTube', tiktok: 'TikTok', github: 'GitHub',
+};
+const social = Object.entries(site.social).filter(([, href]) => href);
+const link = (href: string, text: string) => `<a href="${href}" target="_blank" rel="noopener">${text}</a>`;
+---
+<footer class="gh-footer gh-outer">
+    <div class="gh-footer-inner gh-inner">
+
+        {showSignup && <Signup id="footer-email" class="gh-footer-signup" />}
+
+        <nav class="gh-footer-menu">
+            <NavMenu items={site.secondaryNavigation} />
+        </nav>
+
+        <div class="gh-social-links">
+            {social.map(([type, href]) => (
+                <a href={href} target="_blank" rel="noopener" aria-label={names[type]}><Icon name={type} /></a>
+            ))}
+        </div>
+
+        <p class="gh-footer-tagline">
+            {site.title}{site.description && ` — ${site.description}`}
+        </p>
+
+        <p class="gh-footer-copyright" set:html={t('Powered by {ghostlink}', { ghostlink: link('https://astro.build/', 'Astro') })} />
+
+    </div>
+</footer>

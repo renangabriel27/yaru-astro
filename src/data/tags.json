@@ -1,0 +1,42 @@
+[
+    {
+        "id": "ai",
+        "name": "AI",
+        "description": "AI in software development: agents, Spec-Driven Development, MCP and evals."
+    },
+    {
+        "id": "rails",
+        "name": "Rails",
+        "description": "Ruby on Rails: Rails 8, jobs, authentication and architecture."
+    },
+    {
+        "id": "hotwire",
+        "name": "Hotwire",
+        "description": "Turbo and Stimulus."
+    },
+    {
+        "id": "devops",
+        "name": "DevOps",
+        "description": "Docker, Kamal and CI."
+    },
+    {
+        "id": "testing",
+        "name": "Testing",
+        "description": "Tests and evals."
+    },
+    {
+        "id": "career",
+        "name": "Career",
+        "description": "Code review, teamwork and lessons learned."
+    },
+    {
+        "id": "design",
+        "name": "Design",
+        "description": "Themes, typography and interfaces."
+    },
+    {
+        "id": "projects",
+        "name": "Projects",
+        "description": "Open source projects: tools for Rails and AI workflows."
+    }
+]

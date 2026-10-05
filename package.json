@@ -1,0 +1,35 @@
+{
+    "name": "yaru-astro",
+    "description": "A clean, minimal dark blog inspired by Ubuntu 24.04 (Yaru dark), built with Astro: a terminal prompt, code blocks as GNOME windows and a numbered post list.",
+    "version": "1.0.0",
+    "type": "module",
+    "private": true,
+    "license": "MIT",
+    "author": {
+        "name": "Renan",
+        "email": "renanwebdev@gmail.com"
+    },
+    "engines": {
+        "node": ">=22.12.0"
+    },
+    "scripts": {
+        "dev": "astro dev",
+        "build": "astro build",
+        "preview": "astro preview",
+        "check": "astro check",
+        "import:ghost": "node scripts/import-ghost.mjs"
+    },
+    "dependencies": {
+        "@astrojs/markdown-remark": "^7.3.1",
+        "@astrojs/rss": "^4.0.19",
+        "@astrojs/sitemap": "^3.7.4",
+        "astro": "^7.3.5",
+        "unist-util-visit": "^5.1.0"
+    },
+    "devDependencies": {
+        "@astrojs/check": "^0.9.10",
+        "turndown": "^7.2.4",
+        "turndown-plugin-gfm": "^1.0.2",
+        "typescript": "^6.0.3"
+    }
+}

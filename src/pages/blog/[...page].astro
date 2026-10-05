@@ -1,0 +1,42 @@
+---
+// Blog: every post except the projects tag, with the category pills (/blog/, /blog/page/2/…)
+import type { GetStaticPaths } from 'astro';
+import { getEntry } from 'astro:content';
+import PostList from '../../components/PostList.astro';
+import Prompt from '../../components/Prompt.astro';
+import TagPills from '../../components/TagPills.astro';
+import { theme } from '../../config';
+import Layout from '../../layouts/Layout.astro';
+import { plural, t } from '../../lib/i18n';
+import { blogPosts, getPosts, paginate } from '../../lib/posts';
+
+export const getStaticPaths = (async () => {
+    const posts = blogPosts(await getPosts());
+    return paginate(posts).map((pagination) => ({
+        params: { page: pagination.page === 1 ? undefined : `page/${pagination.page}` },
+        props: { pagination },
+    }));
+}) satisfies GetStaticPaths;
+
+const { pagination } = Astro.props;
+// Title and description come from the page with the "blog" slug (src/content/pages/blog), if there is one
+const page = await getEntry('pages', 'blog');
+const title = page?.data.title || t('Blog');
+---
+<Layout template="blog-template" title={title} description={page?.data.excerpt} page={pagination.page}>
+    <main class="gh-main">
+
+        <section class="gh-archive gh-outer">
+            <div class="gh-inner">
+                <Prompt path="blog" command="ls" search filter={`tag:-${theme.projectsTag}`} />
+                <h1 class="gh-archive-title is-title">{title}</h1>
+                {page?.data.excerpt && <p class="gh-archive-description">{page.data.excerpt}</p>}
+                <TagPills />
+                <p class="gh-archive-count">{plural(pagination.total, 'No posts', '1 post', '% posts')}</p>
+            </div>
+        </section>
+
+        <PostList pagination={pagination} baseUrl="/blog/" />
+
+    </main>
+</Layout>

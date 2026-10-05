@@ -1,0 +1,26 @@
+---
+// Newsletter block. The form posts to the service set in `newsletter.action` (src/config.ts).
+// Props: id (of the email field), class
+import { newsletter, site } from '../config';
+import { t } from '../lib/i18n';
+
+interface Props {
+    id: string;
+    class?: string;
+}
+
+const { id, class: className } = Astro.props;
+---
+<section class:list={['gh-signup', className]}>
+    <div class="gh-signup-text">
+        <h2 class="gh-signup-heading is-title">{newsletter.heading || site.title}</h2>
+        <p class="gh-signup-subheading">{newsletter.subheading || site.description}</p>
+    </div>
+    <form class="gh-form" action={newsletter.action} method="post" target="_blank">
+        <input class="gh-form-input" id={id} name="email" type="email" placeholder={t('jamie@example.com')} aria-label={t('Your email address')} required />
+        <button class="gh-button" type="submit">
+            <span>{t('Subscribe')}</span>
+            <span>{t('Email sent')}</span>
+        </button>
+    </form>
+</section>

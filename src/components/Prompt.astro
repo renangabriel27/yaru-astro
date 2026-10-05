@@ -1,0 +1,40 @@
+---
+// Terminal prompt in the style of Ubuntu's bash: user@host:path$ command
+// Props: path (text after "~"), pathUrl (link for the path), command,
+// search (true = instead of the command, a title search field with the blinking cursor),
+// filter ("tag:<slug>", "tag:-<slug>" or "author:<slug>", limits the search)
+import { theme } from '../config';
+import { t } from '../lib/i18n';
+import { url } from '../lib/url';
+
+interface Props {
+    path?: string;
+    pathUrl?: string;
+    command?: string;
+    search?: boolean;
+    filter?: string;
+}
+
+const { path, pathUrl, command, search = false, filter = '' } = Astro.props;
+const user = theme.terminalPrompt;
+---
+<p class="gh-prompt">
+    {user && <><span class="gh-prompt-user">{user}</span>:</>}<a class="gh-prompt-path" href={url('/')}>~</a>{path && <><span class="gh-prompt-path">/</span>{pathUrl ? <a class="gh-prompt-path" href={pathUrl}>{path}</a> : <span class="gh-prompt-path">{path}</span>}</>}<span class="gh-prompt-sign">$</span>{' '}
+    {search && theme.promptSearch ? (
+        <label
+            class="gh-prompt-search"
+            data-filter={filter}
+            data-index={url('/search.json')}
+            data-none={t('No posts found')}
+            data-one={t('1 post found')}
+            data-many={t('% posts found')}
+            data-by={t('By {authors}', { authors: '%' })}
+            data-show-author={theme.showAuthor ? '' : undefined}
+        >
+            <span class="gh-prompt-query" aria-hidden="true"></span><span class="gh-cursor" aria-hidden="true"></span><span class="gh-prompt-hint" aria-hidden="true">{t('type to search posts')}</span>
+            <input class="gh-prompt-input" type="search" name="q" autocomplete="off" spellcheck="false" enterkeyhint="go" aria-label={t('Search posts by title')} />
+        </label>
+    ) : (
+        command && <span class="gh-prompt-cmd">{command}</span>
+    )}
+</p>

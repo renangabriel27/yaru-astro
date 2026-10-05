@@ -1,0 +1,45 @@
+---
+// Tag archive: /tag/<slug>/, /tag/<slug>/page/2/…
+import type { GetStaticPaths } from 'astro';
+import { getCollection } from 'astro:content';
+import PostList from '../../../components/PostList.astro';
+import Prompt from '../../../components/Prompt.astro';
+import TagPills from '../../../components/TagPills.astro';
+import { theme } from '../../../config';
+import Layout from '../../../layouts/Layout.astro';
+import { plural } from '../../../lib/i18n';
+import { getPosts, paginate } from '../../../lib/posts';
+import { tagUrl } from '../../../lib/url';
+
+export const getStaticPaths = (async () => {
+    const posts = await getPosts();
+    const tags = await getCollection('tags');
+    return tags.flatMap((tag) => {
+        const tagged = posts.filter((post) => post.data.tags.some((t) => t.id === tag.id));
+        return paginate(tagged).map((pagination) => ({
+            params: { slug: tag.id, page: pagination.page === 1 ? undefined : `page/${pagination.page}` },
+            props: { tag, pagination },
+        }));
+    });
+}) satisfies GetStaticPaths;
+
+const { tag, pagination } = Astro.props;
+---
+<Layout template={`tag-template tag-${tag.id}`} title={tag.data.name} description={tag.data.description} page={pagination.page}>
+    <main class="gh-main">
+
+        <section class="gh-archive gh-outer">
+            <div class="gh-inner">
+                <Prompt path={tag.id} pathUrl={tagUrl(tag.id)} command="ls" search filter={`tag:${tag.id}`} />
+                <h1 class="gh-archive-title is-title">{tag.data.name}</h1>
+                {tag.data.description && <p class="gh-archive-description">{tag.data.description}</p>}
+                {/* Category pills on every tag page except the projects tag */}
+                {tag.id !== theme.projectsTag && <TagPills />}
+                <p class="gh-archive-count">{plural(pagination.total, 'No posts', '1 post', '% posts')}</p>
+            </div>
+        </section>
+
+        <PostList pagination={pagination} baseUrl={`/tag/${tag.id}/`} />
+
+    </main>
+</Layout>

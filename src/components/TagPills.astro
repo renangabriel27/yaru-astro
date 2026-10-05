@@ -1,0 +1,18 @@
+---
+// "#tag" pills to filter the blog by category: the public tags that have posts (except the projects tag),
+// from most to fewest posts. The pill of the current page (a tag or /blog/) gets the nav-current class.
+import { t } from '../lib/i18n';
+import { getPosts, pillTags } from '../lib/posts';
+import { isCurrent, tagUrl, url } from '../lib/url';
+
+const pills = await pillTags(await getPosts());
+const pathname = Astro.url.pathname.replace(/page\/\d+\/?$/, '');
+---
+{pills.length > 0 && (
+    <nav class="gh-pills" aria-label={t('Categories')}>
+        <a class:list={['gh-pill', { 'nav-current': isCurrent('/blog/', pathname) }]} href={url('/blog/')}>#{t('all')}</a>
+        {pills.map(({ tag, count }) => (
+            <a class:list={['gh-pill', { 'nav-current': isCurrent(`/tag/${tag.id}/`, pathname) }]} href={tagUrl(tag.id)}>#{tag.id}<span class="gh-pill-count">{count}</span></a>
+        ))}
+    </nav>
+)}

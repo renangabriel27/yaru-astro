@@ -1,0 +1,19 @@
+---
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+interface Props {
+    cover?: ImageMetadata;
+    alt?: string;
+    caption?: string;
+}
+
+const { cover, alt = '', caption } = Astro.props;
+const widths = [320, 600, 960, 1200, 2000].filter((w) => !cover || w <= cover.width);
+---
+{cover && (
+    <figure class="gh-article-image">
+        <Image class="gh-feature-image" src={cover} widths={widths} sizes="(max-width: 1200px) 100vw, 1120px" alt={alt} loading="eager" />
+        {caption && <figcaption set:html={caption} />}
+    </figure>
+)}

@@ -1,0 +1,11 @@
+---
+// Inline SVG icon from src/icons (the Ghost theme's partials/icons)
+const icons = import.meta.glob<string>('../icons/*.svg', { query: '?raw', import: 'default', eager: true });
+
+interface Props {
+    name: string;
+}
+
+const svg = icons[`../icons/${Astro.props.name}.svg`];
+---
+{svg && <Fragment set:html={svg} />}

@@ -1,0 +1,23 @@
+---
+// Error page styled as a GNOME terminal window
+import Prompt from '../components/Prompt.astro';
+import Layout from '../layouts/Layout.astro';
+import { t } from '../lib/i18n';
+import { url } from '../lib/url';
+---
+<Layout template="error-template" title="404">
+    <main class="gh-main gh-outer">
+        <section class="gh-error gh-inner">
+            <div class="gh-window">
+                <div class="gh-window-bar"><span>{t('Terminal')}</span></div>
+                <div class="gh-window-body">
+                    <Prompt command={t('cd ./page')} />
+                    <p class="gh-error-code">404</p>
+                    <p class="gh-error-message">bash: {t('page not found')}</p>
+                    <Prompt />
+                </div>
+            </div>
+            <a class="gh-button" href={url('/')}>{t('Back to home')}</a>
+        </section>
+    </main>
+</Layout>

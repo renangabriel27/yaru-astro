@@ -1,0 +1,13 @@
+[
+    {
+        "id": "dev",
+        "name": "Dev",
+        "bio": "Software engineer. Writes about Ruby on Rails, AI-assisted development and open source.",
+        "location": "Earth",
+        "website": "https://github.com",
+        "avatar": "../assets/authors/dev.jpg",
+        "social": {
+            "github": "https://github.com/renangabriel27"
+        }
+    }
+]

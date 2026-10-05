@@ -1,0 +1,66 @@
+---
+// The page frame (Ghost's default.hbs): head, navigation, footer, lightbox and the theme scripts
+import type { ImageMetadata } from 'astro';
+import { site, theme } from '../config';
+import { url } from '../lib/url';
+import Footer from '../components/Footer.astro';
+import Head from '../components/Head.astro';
+import Lightbox from '../components/Lightbox.astro';
+import Navigation from '../components/Navigation.astro';
+import '../styles/fonts.css';
+import '../styles/cards.css';
+import '../styles/screen.css';
+
+interface Props {
+    /** Ghost's body_class: home-template, post-template, page-template, tag-template, author-template, error-template */
+    template: string;
+    title?: string;
+    description?: string;
+    image?: ImageMetadata;
+    type?: 'website' | 'article';
+    published?: Date;
+    /** Page number of a paginated list */
+    page?: number;
+}
+
+const { template, ...meta } = Astro.props;
+const paged = (meta.page ?? 1) > 1;
+const isArticle = template === 'post-template' || template === 'page-template';
+const scripts = ['lib/imagesloaded.pkgd.min.js', 'lib/photoswipe.min.js', 'lib/photoswipe-ui-default.min.js', 'lib/reframe.min.js', 'dropdown.js', 'lightbox.js', 'main.js'];
+---
+<!DOCTYPE html>
+<html lang={site.locale}>
+<head>
+    <Head {...meta} />
+    <style is:inline set:html={`:root { --ghost-accent-color: ${site.accentColor}; }`}></style>
+</head>
+<body
+    class:list={[
+        template,
+        {
+            paged,
+            'has-code-windows': theme.codeBlocksAsWindows,
+            'has-syntax-highlighting': theme.syntaxHighlighting,
+            'code-style-rayso': theme.codeStyle === 'Ray.so',
+            'has-blinking-cursor': theme.showBlinkingCursor,
+        },
+    ]}
+>
+
+<div class="gh-viewport">
+
+    <Navigation />
+
+    <slot />
+
+    <Footer isPost={template === 'post-template'} />
+
+</div>
+
+{isArticle && <Lightbox />}
+
+{/* Mobile menu, lightbox, responsive videos, nav dropdown, code window titles and prompt search */}
+{scripts.map((src) => <script is:inline defer src={url(`/scripts/${src}`)}></script>)}
+
+</body>
+</html>

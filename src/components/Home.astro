@@ -1,0 +1,26 @@
+---
+// The post list of the home page (Ghost's home.hbs on page 1, index.hbs on the following pages)
+import { site, theme } from '../config';
+import type { Pagination } from '../lib/posts';
+import PostList from './PostList.astro';
+
+interface Props {
+    pagination: Pagination;
+}
+
+const { pagination } = Astro.props;
+const showIntro = theme.showHomeIntro && pagination.page === 1;
+---
+<main class="gh-main">
+
+    {showIntro && (
+        <section class="gh-intro gh-outer">
+            <div class="gh-inner">
+                <h1 class="gh-intro-title is-title">{theme.homeIntroText || site.description}</h1>
+            </div>
+        </section>
+    )}
+
+    <PostList pagination={pagination} baseUrl="/" prompt />
+
+</main>

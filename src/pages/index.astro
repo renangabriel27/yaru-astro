@@ -1,0 +1,10 @@
+---
+import Home from '../components/Home.astro';
+import Layout from '../layouts/Layout.astro';
+import { getPosts, paginate } from '../lib/posts';
+
+const [first] = paginate(await getPosts());
+---
+<Layout template="home-template">
+    <Home pagination={first} />
+</Layout>

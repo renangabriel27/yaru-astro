@@ -1,0 +1,57 @@
+---
+// Author archive: /author/<slug>/, /author/<slug>/page/2/…
+import type { GetStaticPaths } from 'astro';
+import { Image } from 'astro:assets';
+import { getCollection } from 'astro:content';
+import Icon from '../../../components/Icon.astro';
+import PostList from '../../../components/PostList.astro';
+import Prompt from '../../../components/Prompt.astro';
+import Layout from '../../../layouts/Layout.astro';
+import { plural, t } from '../../../lib/i18n';
+import { getPosts, hasAuthor, paginate } from '../../../lib/posts';
+
+export const getStaticPaths = (async () => {
+    const posts = await getPosts();
+    const authors = await getCollection('authors');
+    return authors.flatMap((author) =>
+        paginate(posts.filter((post) => hasAuthor(post, author.id))).map((pagination) => ({
+            params: { slug: author.id, page: pagination.page === 1 ? undefined : `page/${pagination.page}` },
+            props: { author, pagination },
+        })),
+    );
+}) satisfies GetStaticPaths;
+
+const { author, pagination } = Astro.props;
+const { name, bio, avatar, location, website, social } = author.data;
+const labels: Record<string, string> = {
+    x: 'X', linkedin: 'LinkedIn', bluesky: 'Bluesky', mastodon: 'Mastodon', instagram: 'Instagram', youtube: 'YouTube', github: 'GitHub',
+};
+---
+<Layout template="author-template" title={name} description={bio} page={pagination.page}>
+    <main class="gh-main">
+
+        <section class="gh-archive is-author gh-outer">
+            <div class="gh-inner">
+                <Prompt command={`whoami ${author.id}`} search filter={`author:${author.id}`} />
+                <div class="gh-archive-author">
+                    <div class="gh-archive-avatar">
+                        {avatar ? <Image src={avatar} width={320} alt={name} /> : <Icon name="avatar" />}
+                    </div>
+                    <div>
+                        <h1 class="gh-archive-title is-title">{name}</h1>
+                        {bio && <p class="gh-archive-description">{bio}</p>}
+                    </div>
+                </div>
+                <div class="gh-archive-count">
+                    <span>{plural(pagination.total, 'No posts', '1 post', '% posts')}</span>
+                    {location && <span>{location}</span>}
+                    {website && <a href={website} target="_blank" rel="noopener">{t('Website')}</a>}
+                    {Object.entries(social).map(([type, href]) => <a href={href} target="_blank" rel="noopener">{labels[type]}</a>)}
+                </div>
+            </div>
+        </section>
+
+        <PostList pagination={pagination} baseUrl={`/author/${author.id}/`} />
+
+    </main>
+</Layout>

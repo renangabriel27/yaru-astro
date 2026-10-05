@@ -1,0 +1,109 @@
+---
+// Posts and pages live at /<slug>/, like in Ghost
+import type { GetStaticPaths } from 'astro';
+import { getCollection, render } from 'astro:content';
+import FeatureImage from '../components/FeatureImage.astro';
+import PostCard from '../components/PostCard.astro';
+import Prompt from '../components/Prompt.astro';
+import Signup from '../components/Signup.astro';
+import { newsletter, theme } from '../config';
+import Layout from '../layouts/Layout.astro';
+import { t } from '../lib/i18n';
+import { getPosts, isoDate, longDate, postAuthors, postTags, readingTime, relatedPosts } from '../lib/posts';
+import { authorUrl, tagUrl } from '../lib/url';
+
+export const getStaticPaths = (async () => {
+    const posts = await getPosts();
+    // The "blog" page only holds the title and description of /blog/ (src/pages/blog)
+    const pages = await getCollection('pages', ({ id }) => id !== 'blog');
+    return [
+        ...posts.map((post) => ({
+            params: { slug: post.id },
+            props: { kind: 'post' as const, entry: post, related: relatedPosts(post, posts) },
+        })),
+        ...pages.map((page) => ({ params: { slug: page.id }, props: { kind: 'page' as const, entry: page } })),
+    ];
+}) satisfies GetStaticPaths;
+
+const props = Astro.props;
+const { entry } = props;
+const { Content } = await render(entry);
+const data = entry.data;
+const tags = props.kind === 'post' ? await postTags(props.entry) : [];
+const authors = props.kind === 'post' ? await postAuthors(props.entry) : [];
+const primaryTag = tags[0];
+const minutes = readingTime(entry);
+const showHeader = props.kind === 'post' || props.entry.data.showTitle;
+const classes = ['gh-article', props.kind, ...tags.map((tag) => `tag-${tag.id}`), !data.cover && 'no-image'];
+---
+<Layout
+    template={`${props.kind}-template`}
+    title={data.title}
+    description={data.excerpt}
+    image={data.cover}
+    type={props.kind === 'post' ? 'article' : 'website'}
+    published={props.kind === 'post' ? props.entry.data.date : undefined}
+>
+    <main class="gh-main">
+
+        <article class:list={classes}>
+
+            {showHeader && (
+                <header class="gh-article-header gh-canvas">
+
+                    {theme.showBreadcrumb && (
+                        <nav class="gh-breadcrumb" aria-label={t('Breadcrumb')}>
+                            {props.kind === 'post' && primaryTag
+                                ? <Prompt path={primaryTag.id} pathUrl={tagUrl(primaryTag.id)} command={`cat ${entry.id}.md`} />
+                                : <Prompt command={`cat ${entry.id}.md`} />}
+                        </nav>
+                    )}
+
+                    <h1 class="gh-article-title is-title">{data.title}</h1>
+
+                    {data.excerpt && <p class="gh-article-excerpt">{data.excerpt}</p>}
+
+                    {props.kind === 'post' && (
+                        <div class="gh-article-meta">
+                            <time datetime={isoDate(props.entry.data.date)}>{longDate(props.entry.data.date)}</time>
+                            <span>{minutes === 1 ? t('1 min read') : t('% min read', { n: minutes })}</span>
+                            <span set:html={t('By {authors}', { authors: authors.map((a) => `<a href="${authorUrl(a.id)}">${a.data.name}</a>`).join(', ') })} />
+                        </div>
+                    )}
+
+                    {tags.length > 0 && (
+                        <div class="gh-article-tags">
+                            {tags.map((tag) => <a class="gh-pill" href={tagUrl(tag.id)} title={tag.data.name}>{tag.id}</a>)}
+                        </div>
+                    )}
+
+                    <FeatureImage cover={data.cover} alt={data.coverAlt || data.title} caption={data.coverCaption} />
+
+                </header>
+            )}
+
+            <section class="gh-content gh-canvas is-body">
+                <Content />
+            </section>
+
+            {props.kind === 'post' && newsletter.action && newsletter.showOnPosts && (
+                <div class="gh-canvas">
+                    <Signup id="post-email" class="gh-post-signup" />
+                </div>
+            )}
+
+        </article>
+
+    </main>
+
+    {props.kind === 'post' && theme.showRelatedArticles && props.related.length > 0 && (
+        <section class="gh-container gh-related-posts gh-outer">
+            <div class="gh-container-inner gh-inner">
+                <h2 class="gh-section-title">{t('Read next')}</h2>
+                <div class="gh-feed gh-related">
+                    {props.related.map((post) => <PostCard post={post} />)}
+                </div>
+            </div>
+        </section>
+    )}
+</Layout>

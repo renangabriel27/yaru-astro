@@ -1,0 +1,18 @@
+---
+// Ghost's {{navigation}} markup: <ul class="nav"> with nav-<label> and nav-current classes
+import type { NavItem } from '../config';
+import { isCurrent, url } from '../lib/url';
+
+interface Props {
+    items: NavItem[];
+}
+
+const slug = (label: string) => label.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+---
+<ul class="nav">
+    {Astro.props.items.map((item) => (
+        <li class:list={[`nav-${slug(item.label)}`, { 'nav-current': isCurrent(item.url, Astro.url.pathname) }]}>
+            <a href={url(item.url)}>{item.label}</a>
+        </li>
+    ))}
+</ul>

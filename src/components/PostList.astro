@@ -1,0 +1,40 @@
+---
+// Numbered post list. The 01, 02… numbers come from a CSS counter (.gh-feed) that continues on /page/N/.
+// Props: pagination, baseUrl (where page 1 lives), prompt (shows the prompt line with the title search)
+import { site, theme } from '../config';
+import { t } from '../lib/i18n';
+import type { Pagination } from '../lib/posts';
+import { url } from '../lib/url';
+import PostCard from './PostCard.astro';
+import Prompt from './Prompt.astro';
+
+interface Props {
+    pagination: Pagination;
+    baseUrl: string;
+    prompt?: boolean;
+}
+
+const { pagination, baseUrl, prompt = false } = Astro.props;
+const { page, pages, items } = pagination;
+const offset = (page - 1) * site.postsPerPage;
+const pageUrl = (n: number) => url(n === 1 ? baseUrl : `${baseUrl.replace(/\/$/, '')}/page/${n}/`);
+---
+<section class:list={['gh-container gh-outer', { 'no-numbers': !theme.showPostNumbers }]}>
+    <div class="gh-container-inner gh-inner">
+
+        {prompt && <Prompt command="ls -t posts/" search />}
+
+        <div class="gh-feed" style={offset ? `--feed-offset: ${offset}` : undefined}>
+            {items.map((post) => <PostCard post={post} />)}
+        </div>
+
+        {pages > 1 && (
+            <nav class="gh-pagination" aria-label={t('Pagination')}>
+                {page > 1 ? <a href={pageUrl(page - 1)}>{t('← Newer posts')}</a> : <span></span>}
+                <span class="gh-pagination-info">{page} / {pages}</span>
+                {page < pages ? <a href={pageUrl(page + 1)}>{t('Older posts →')}</a> : <span></span>}
+            </nav>
+        )}
+
+    </div>
+</section>
